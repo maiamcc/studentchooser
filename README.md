@@ -1,6 +1,6 @@
 Student Chooser
 ===============
-This program was written in my second week of (Hacker School)[https://www.hackerschool.com/], and is my first project in Python! I wrote it at the suggestion of a teacher friend of mine, who wanted a fair way to call on her students at random (for putting homework problems on the board, etc.).
+This simple command-line program was written in my second week of [Hacker School](https://www.hackerschool.com/), and is my first project in Python! I wrote it at the suggestion of a teacher friend of mine, who wanted a fair way to call on her students at random (for putting homework problems on the board, etc.).
 
 Think of this as the high-tech version of drawing a popsicle stick with a student's name on it. The downside to popsicle sticks is that a student is either in the pile or out of the pile--they either have the same chance of being drawn as anyone else, or a 0% chance of being drawn. This program weights students' probability of being picked based on the number of times they have been picked previously, so a student who has been chosen before is _less_ likely to be chosen again, but still in the running. (This means that being called on once is no guarantee of not being called on again, which will hopefully throw the fear of god into the students and encourage them to keep up with their homework or what have you.)
 
@@ -14,10 +14,10 @@ About the Program
 
 A *student* is a custom object with the following attributes:
 
-	* `name` - the student's name
-	* `prob` - the student's probability of being selected. All probabilites begin equivalent (set to 1, then scaled with `scale()`), and are decreased by the `prob_changed` factor each time the student is picked.
-	* `times_picked` - the number of times the student has been picked. Used to calculate adjustments to each student's probability.
-	* `absent` - a Boolean stating whether the student is absent. Absent students (`absent=True`) are not considered for selection until their absence status has changed.
+* `name` - the student's name
+* `prob` - the student's probability of being selected. All probabilites begin equivalent (set to 1, then scaled with `scale()`), and are decreased by the `prob_changed` factor each time the student is picked.
+* `times_picked` - the number of times the student has been picked. Used to calculate adjustments to each student's probability.
+* `absent` - a Boolean stating whether the student is absent. Absent students (`absent=True`) are not considered for selection until their absence status has changed.
 
 A *roster* is simply a collection of students, stored in a dictionary for easy access.
 
@@ -41,19 +41,20 @@ In the `scale()` function, all students' probabilities are set back to 100, and 
 
 ### Flowchart of Program Execution
 
-Program started!
-> 1. make new roster, 2. load existing roster"
-	1. New roster: user inputs a title for the roster, and names of all students in the class). Initially, all students have equal probabilities of being
-	2. Existing roster: program displays a list of existing rosters, as found in the config.txt file; user selects one to load)
-		- When existing roster is loaded, program displays a list of students who were absent the last time the user ran the program.
-- Option to take attendance (i.e. input names of absent students)
-> 1. pick, 2. input absences, 3. view roster, 4. add student(s), 5. switch classes, 6. exit
-	1. Pick: program selects a student with the method described above, asks the user for confirmation. If user does not confirm, program chooses again.
-		- If user confirms, program returns the student's name and increases student's times_picked count, and scales the probabilities of all the present students.
-	2. Input absences: user inputs all absent students, one at a time.
-	3. View roster: program displays the roster, including number of times picked and an indicator of whether each student is absent.
-	4. Add student(s): user inputs students to add to roster.
-	5. Switch classes: user saves any changes to current roster and switches to a different one. (User is given the option to make a new roster or load an existing one.)
+	Program started!
+	User options: Make new roster / Load existing roster
+		1. New roster: user inputs a title for the roster, and names of all students in the class). Initially, all students have equal probabilities of being
+		2. Existing roster: program displays a list of existing rosters, as found in the config.txt file; user selects one to load)
+			- When existing roster is loaded, program displays a list of students who were absent the last time the user ran the program.
+	Option to take attendance (i.e. input names of absent students)
+	User options: Pick / Input Absences / View Roster / Add Student(s) / Switch Classes / Exit
+		1. Pick: program selects a student with the method described above, asks the user for confirmation. If user does not confirm, program chooses again.
+			- If user confirms, program returns the student's name and increases student's times_picked count, and scales the probabilities of all the present students.
+		2. Input absences: user inputs all absent students, one at a time.
+		3. View roster: program displays the roster, including number of times picked and an indicator of whether each student is absent.
+		4. Add student(s): user inputs students to add to roster.
+		5. Switch classes: user saves any changes to current roster and switches to a different one. (User is given the option to make a new roster or load an existing one.)
+		6. Exit: saves all data to the roster file and exits the program.
 
 Next Steps
 ----------
