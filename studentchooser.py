@@ -472,7 +472,7 @@ def exit():
 
 def main():
     """Main user interface function from which all other functions are called."""
-    print "Hello, and welcome to the Student Picker 5000!"
+    print "Hello, and welcome to Student Chooser."
 
     current_roster_name = new_or_load()
 
