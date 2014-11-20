@@ -14,7 +14,7 @@ students = []
 prob_change = 3.0/4.0
 
 # default name of config file (will contain all of the filenames of existing rosters)
-config_file = "config"
+roster_master_list = "all_rosters"
 
 # tells system whether this roster is new (and so needs to be written into config file on close)
 new_roster = True
@@ -95,11 +95,11 @@ class Roster(dict):
             roster_list.append(self.name) # add this roster to list
             roster_list.sort(key=string.lower) # alphabetize list
 
-            with open(config_file, "w") as all_rosters_file:
-                # write list of all roster files to the document
+            with open(roster_master_list, "w") as outfile:
+                # write list of all roster files to the master list of rosters
                 for roster in roster_list:
-                    all_rosters_file.write(roster)
-                    all_rosters_file.write("\n")
+                    outfile.write(roster)
+                    outfile.write("\n")
 
     def add_to_roster(self, input_list):
         for kid in input_list:
@@ -243,7 +243,7 @@ def confirm(msg=default_confirm_msg):
 ### HELPER FUNCTIONS ###
 def get_all_rosters():
     """"Return a list of all of the roster filenames in the config file."""
-    with open(config_file) as all_rosters_file:
+    with open(roster_master_list) as all_rosters_file:
         return sorted([line.strip() for line in all_rosters_file], key=string.lower)
 
 ###### RAW-INPUT / STATE-CHANGE FUNCTIONS ######
@@ -292,7 +292,14 @@ def make_new_roster():
         print "Enter a name for this class."
         class_name = ask()
 
-        all_rosters_list = get_all_rosters()
+        try:
+            all_rosters_list = get_all_rosters()
+        except IOError:
+            # the roster_master_list file doesn't exist yet, so we should make it.
+                # (It contains nothing, so the list of all rosters is empty.)
+            open(roster_master_list, 'a').close()
+            all_rosters_list = []
+
         if class_name in all_rosters_list:
             print "ERROR! This class name already exists. Please try again."
         else:
@@ -375,7 +382,6 @@ def main():
     answer = confirm("Take attendance now? y/n")
     if answer:
         cur_roster.take_attendance()
-
 
     while True:
         print "1. pick, 2. input absences, 3. view roster, 4. add student(s), 5. switch classes, 6. exit"
