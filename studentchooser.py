@@ -31,7 +31,7 @@ class Student(object):
         return "<%s; %f; %d; %d>" % (self.name, self.prob, self.times_picked, self.absent)
     def __str__(self):
         # for user output
-        reg_output = "%s: chosen %d times" % (self.name, self.times_picked)
+        reg_output = "%s: chosen %d time(s)" % (self.name, self.times_picked)
         absence_output = " (absent)"
         if self.absent:
             return reg_output + absence_output
@@ -100,6 +100,15 @@ class Roster(dict):
                 for roster in roster_list:
                     all_rosters_file.write(roster)
                     all_rosters_file.write("\n")
+
+    def add_to_roster(self, input_list):
+        for kid in input_list:
+            if self.get(kid):
+                # if student is already in the roster, don't add a duplicate, print an error instead
+                print "ERROR: '%s' is already in your roster." % kid
+            else:
+                # create a new Student object in the roster
+                self[kid] = Student(kid)
 
     ### CHOOSING ###
     def pick_a_kid(self):
@@ -172,7 +181,7 @@ class Roster(dict):
         print "\tAbraham \n\tBeelzebub \n\tCain"
         print "Remember, you must input your students' names exactly as the appear on the roster."
         print "As a reminder, your roster is:"
-        for kid in self.itervalues():
+        for kid in self:
             print "\t", kid
         print "When you're done (or if no one is absent), just press 'RETURN'"
 
@@ -268,8 +277,7 @@ def make_student_list():
 
     # show the user-entered list, ask for confirmation
     print "You provided the following list of students:"
-    student_string = "; ".join(temp_students_list)
-    print "\t", student_string
+    print "\t", "; ".join(temp_students_list)
 
     confirmation = confirm()
 
@@ -289,18 +297,6 @@ def make_new_roster():
             print "ERROR! This class name already exists. Please try again."
         else:
             return Roster(name=class_name, new=True)
-
-def update_roster(input_list):
-    """Given a list of students, add those students to the roster.
-    (Can also be used to populate a roster for the first time)"""
-
-    for kid in input_list:
-        if roster.get(kid):
-            # if student is already in the roster, don't add a duplicate, print an error instead
-            print "ERROR: '%s' is already in your roster." % kid
-        else:
-            # create a new Student object in the roster
-            roster[kid] = Student(kid)
 
 ### DATA ###
 
@@ -369,9 +365,8 @@ def take_attendance_now():
         take_attendance()
 
 def add_students():
-    new_students = make_student_list()
-    update_roster(new_students)
-    update_student_list()
+    students_to_add = make_student_list()
+    cur_roster.add_to_roster(students_to_add)
 
 def switch_classes():
     save_data()
