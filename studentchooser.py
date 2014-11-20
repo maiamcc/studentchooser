@@ -259,7 +259,7 @@ def make_student_list():
 
     print "Input students one at a time, hitting RETURN after each. For example:"
     print "\tAbraham \n\tBeelzebub \n\tCain"
-    print "Remember, you must input your students' names exactly as the appear on the roster."
+    print "Remember, you must input your students' names exactly as the appear/as you wish them to appear on the roster."
     print "When you're done, just press 'RETURN'"
 
     temp_students_list = []
@@ -357,50 +357,42 @@ def load_roster_from_disk():
             else: # if user input isn't in range or isn't an integer
                 print "Sorry, I didn't get that. Try again."
 
-def take_attendance_now():
-    """To be run when switching classes: asks user if they want to take attendance now."""
-    answer = confirm("Take attendance now? y/n")
-    if answer:
-        print "Who is absent today?"
-        take_attendance()
-
-def add_students():
+def add_students(current_roster):
     students_to_add = make_student_list()
-    cur_roster.add_to_roster(students_to_add)
+    current_roster.add_to_roster(students_to_add)
 
-def switch_classes():
-    save_data()
-    new_or_load()
-
-def exit():
-    save_data()
+def exit(current_roster):
+    current_roster.save_to_disk()
     sys.exit()
 
 def main():
     """Main user interface function from which all other functions are called."""
     print "Hello, and welcome to Student Chooser."
 
-    current_roster_name = new_or_load()
+    cur_roster = new_or_load()
 
-    update_student_list()
+    # Does user want to take attendance?
+    answer = confirm("Take attendance now? y/n")
+    if answer:
+        cur_roster.take_attendance()
 
-    take_attendance_now()
 
     while True:
         print "1. pick, 2. input absences, 3. view roster, 4. add student(s), 5. switch classes, 6. exit"
         answer = ask()
         if answer == "1":
-            select()
+            cur_roster.choose()
         elif answer == "2":
-            take_attendance()
+            cur_roster.take_attendance()
         elif answer == "3":
-            display_roster()
+            print cur_roster
         elif answer == "4":
-            add_students()
+            add_students(cur_roster)
         elif answer == "5":
-            switch_classes()
+            cur_roster.save_to_disk()
+            cur_roster = new_or_load()
         elif answer == "6":
-            exit()
+            exit(cur_roster)
         else:
             print "Sorry, I didn't get that. Try again."
 
