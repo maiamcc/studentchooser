@@ -42,6 +42,7 @@ class Student(object):
         return "%s; %f; %d; %d" % (self.name, self.prob, self.times_picked, self.absent)
 
 class Roster(dict):
+    ### CREATION, SAVING, PRINTING ###
     def __init__(self, name, new=True):
         # note; expects 'name' to be same as filename
         super(Roster,self).__init__()
@@ -49,7 +50,7 @@ class Roster(dict):
         self.new = new
         if new:
             """Makes a new roster (names the roster; asks for list of students; populates roster)."""
-            students = new_student_list()
+            students = make_student_list()
             for name in students:
                 self[name] = Student(name)
             self.scale()
@@ -70,6 +71,12 @@ class Roster(dict):
 
             # prints students who were absent last time the program was run
             self.last_absent()
+
+    def __str__(self):
+        """Prints contents of roster in user-friendly format."""
+        output = ["Current roster: %s" % self.name]
+        output.extend(["\t%s" % self[kid] for kid in self])
+        return "\n".join(output)
 
     def save_to_disk(self):
         """Saves the roster to disk, in a text file with its same name. If the roster is new,
@@ -94,6 +101,7 @@ class Roster(dict):
                     all_rosters_file.write(roster)
                     all_rosters_file.write("\n")
 
+    ### CHOOSING ###
     def pick_a_kid(self):
         """Return a student picked from roster according to probability distribution.
         (Each student's probabibility is adjusted according to number of times picked.)"""
@@ -151,6 +159,50 @@ class Roster(dict):
         print "Selected:", the_student
         return the_student
 
+    ### ATTENDANCE ###
+    def take_attendance(self):
+        """Asks user to input absent students, passes these students to mark_absent()
+        to change their status to "absent"""
+        # reset all students to "present"
+        for kid in self.itervalues():
+            kid.absent = False
+
+        # ask user to input absent students
+        print "Input absent students one at a time, hitting RETURN after each. For example:"
+        print "\tAbraham \n\tBeelzebub \n\tCain"
+        print "Remember, you must input your students' names exactly as the appear on the roster."
+        print "As a reminder, your roster is:"
+        for kid in self.itervalues():
+            print "\t", kid
+        print "When you're done (or if no one is absent), just press 'RETURN'"
+
+        absent_list = []
+
+        while True:
+            answer = ask()
+            if answer != "": # if answer is not a blank line
+                if self.get(answer): # if answer is in the roster (i.e. valid student name)
+                    absent_list.append(answer) # add to absent list
+                else:
+                    print "Not a vaild student name, please try again."
+            else: # if the user enters a blank line, end the loop
+                break
+
+        # show the user-entered list, ask for confirmation
+        print "You said the following students are absent:"
+        print "\t", "; ".join(absent_list)
+
+        confirmation = confirm()
+
+        if confirmation:
+            # if user confirms, set specified students to "absent"
+            for kid in absent_list:
+                self[kid].absent = True
+            self.scale()
+        elif not(confirmation):
+            # if user does not confirm, ask again
+            self.take_attendance()
+
     def last_absent(self):
         """Print names of the students who are absent.
         (Because this is called when the roster is first loaded, it assumes it is displaying those
@@ -163,7 +215,6 @@ class Roster(dict):
 
 
 ### USER INPUT FUNCTIONS ###
-
 def ask():
     """Return user input."""
     return raw_input("> ")
@@ -181,57 +232,20 @@ def confirm(msg=default_confirm_msg):
             print "Sorry, I didn't get that. Try again."
 
 ### HELPER FUNCTIONS ###
-
-def get_present_students():
-    """Return a list of present students."""
-    return {kid: roster[kid] for kid in roster if not roster[kid].absent}
-
-def update_student_list():
-    """Repopulate and alphabetize student list."""
-    # clear student list
-    del students[:]
-
-    # populate list of student names and sort alphabetically
-    for kid in roster:
-        students.append(kid)
-    students.sort(key=string.lower)
-
-def display_roster():
-    """Prints contents of roster in user-friendly format."""
-    print "Current roster:", current_roster_name
-    for kid in students:
-        print "\t", roster[kid]
-
 def get_all_rosters():
     """"Return a list of all of the roster filenames in the config file."""
     with open(config_file) as all_rosters_file:
-        all_rosters_list = []
-        for line in all_rosters_file:
-            all_rosters_list.append(line.strip())
-        all_rosters_list.sort(key=string.lower)
-
-    return all_rosters_list
+        return sorted([line.strip() for line in all_rosters_file], key=string.lower)
 
 ###### RAW-INPUT / STATE-CHANGE FUNCTIONS ######
 
 ### ATTENDANCE ###
 
-def mark_absent(abs_list):
-    """Mark all students in a given list as \"absent\"."""
-    for kid in abs_list:
-        if roster.get(kid):
-            roster[kid].absent = True
-        else:
-            print "ERROR! One or more of your names was not recognized. Please try again.\n"
-            # (note: this is a failsafe. Theoretically, take_attendance() controls
-                #for unrecognized student names)
-            take_attendance()
-
 ### CHOOSING ###
 
 ### ROSTERS (MAKING AND UPDATING) ###
 
-def new_student_list():
+def make_student_list():
     """Return a list of students according to user input."""
 
     print "Input students one at a time, hitting RETURN after each. For example:"
@@ -262,7 +276,7 @@ def new_student_list():
     if confirmation: # if user confirms
         return temp_students_list # return the list
     elif not(confirmation): # if user does not confirm
-        return new_student_list() # ask again for input
+        return make_student_list() # ask again for input
 
 def make_new_roster():
     while True:
@@ -347,49 +361,6 @@ def load_roster_from_disk():
             else: # if user input isn't in range or isn't an integer
                 print "Sorry, I didn't get that. Try again."
 
-def take_attendance():
-    """Asks user to input absent students, passes these students to mark_absent()
-    to change their status to "absent"""
-    # reset all students to "present"
-    for kid in roster:
-        roster[kid].absent = False
-
-    # ask user to input absent students
-    print "Input absent students one at a time, hitting RETURN after each. For example:"
-    print "\tAbraham \n\tBeelzebub \n\tCain"
-    print "Remember, you must input your students' names exactly as the appear on the roster."
-    print "As a reminder, your roster is:"
-    for kid in students:
-        print "\t", kid
-    print "When you're done (or if no one is absent), just press 'RETURN'"
-
-    absent_list = []
-
-    while True:
-        answer = ask()
-        if answer != "": # if answer is not a blank line
-            if roster.get(answer): # if answer is in the roster (i.e. valid student name)
-                absent_list.append(answer) # add to absent list
-            else:
-                print "Not a vaild student name, please try again."
-        else: # if the user enters a blank line, end the loop
-            break
-
-    # show the user-entered list, ask for confirmation
-    print "You said the following students are absent:"
-    absent_string = "; ".join(absent_list)
-    print "\t", absent_string
-
-    confirmation = confirm()
-
-    if confirmation:
-        # if user confirms, set specified students to "absent"
-        mark_absent(absent_list)
-        scale()
-    elif not(confirmation):
-        # if user does not confirm, ask again
-        take_attendance()
-
 def take_attendance_now():
     """To be run when switching classes: asks user if they want to take attendance now."""
     answer = confirm("Take attendance now? y/n")
@@ -398,7 +369,7 @@ def take_attendance_now():
         take_attendance()
 
 def add_students():
-    new_students = new_student_list()
+    new_students = make_student_list()
     update_roster(new_students)
     update_student_list()
 
