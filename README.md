@@ -21,7 +21,7 @@ A *student* is a custom object with the following attributes:
 
 A *roster* is simply a collection of students, stored in a dictionary for easy access.
 
-The contents of each roster is stored in a text file (with a name defined by user on creation of the roster). A list of all the roster files is contained in the config.txt file.
+The contents of each roster is stored in a text file (with a name defined by user on creation of the roster). A list of all the roster files is contained in the 'all_rosters' file.
 
 ### Mechanics: Choosing a Student
 Recall that each student has an associated probability value, and that the probability values of all the students in a class are scaled to sum to 100.
@@ -55,10 +55,3 @@ In the `scale()` function, all students' probabilities are set back to 100, and 
 		4. Add student(s): user inputs students to add to roster.
 		5. Switch classes: user saves any changes to current roster and switches to a different one. (User is given the option to make a new roster or load an existing one.)
 		6. Exit: saves all data to the roster file and exits the program.
-
-Next Steps
-----------
-
-* Currently, the program won't run if there isn't an existing config.txt file in the directory. This is puzzling, since `open(file, "w")` ought to create a new file if none exists.
-* Streamline code by using `with filename as infile:` etc. rather than opening and closing files separately.
-* Organize code with more custom objects, and custom methods within those objects--e.g. methods within a Roster object--to eliminate confusion over global/local variables when trying to change the state of the program.
