@@ -14,7 +14,7 @@ students = []
 prob_change = 3.0/4.0
 
 # default name of config file (will contain all of the filenames of existing rosters)
-config_file = "config.txt"
+config_file = "config"
 
 # tells system whether this roster is new (and so needs to be written into config file on close)
 new_roster = True
@@ -81,11 +81,6 @@ def display_roster():
     print "Current roster:", current_roster_name
     for kid in students:
         print "\t", roster[kid]
-
-def get_pretty_name(filename):
-    """Returns \"myfile\" for input \"myfile.txt\"."""
-    extension_index = filename.find(".txt")
-    return filename[:extension_index]
 
 def get_all_rosters():
     """"Return a list of all of the roster filenames in the config file."""
@@ -312,16 +307,15 @@ def make_new_roster():
     while True:
         print "Enter a name for this class."
         class_title = ask()
-        filename = class_title + ".txt"
 
         # checks if the given filename already exists in config file
         all_rosters_list = get_all_rosters()
-        if filename in all_rosters_list:
+        if class_title in all_rosters_list:
             print "ERROR! This class name already exists. Please try again."
         else:
             # save the given filename as the 'current file'
             global current_file
-            current_file = filename
+            current_file = class_title
             # Boolean saying that this is a new roster
                 # i.e. when the program saves data, it will know to add a new
                 # filename to the "config" file
@@ -356,10 +350,9 @@ def load_roster():
         print "Which roster would you like to load? Enter a number."
 
         # print a list of available rosters from config file
-        for item in roster_list:
-            item_index = roster_list.index(item) + 1
-            pretty_name = get_pretty_name(item) # (name of the file w/o the file extension)
-            print "\t%d. %s" % (item_index, pretty_name)
+        for class_name in roster_list:
+            class_name_index = roster_list.index(class_name) + 1
+            print "\t%d. %s" % (class_name_index, class_name)
 
         while True:
             answer = ask()
@@ -383,7 +376,7 @@ def load_roster():
                 populate_roster(current_file)
 
                 # returns name of the class (= name of the file) for display
-                return get_pretty_name(current_file)
+                return current_file
             else: # if user input isn't in range or isn't an integer
                 print "Sorry, I didn't get that. Try again." # run the loop again
 
