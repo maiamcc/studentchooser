@@ -84,12 +84,12 @@ def display_roster():
 
 def get_all_rosters():
     """"Return a list of all of the roster filenames in the config file."""
-    all_rosters_file = open(config_file)
-    all_rosters_list = []
-    for line in all_rosters_file:
-        all_rosters_list.append(line.strip())
-    all_rosters_list.sort(key=string.lower)
-    all_rosters_file.close()
+    with open(config_file) as all_rosters_file:
+        all_rosters_list = []
+        for line in all_rosters_file:
+            all_rosters_list.append(line.strip())
+        all_rosters_list.sort(key=string.lower)
+
     return all_rosters_list
 
 def student_from_line(line):
@@ -230,13 +230,10 @@ def populate_roster(data_file):
     # first, clear the roster
     roster.clear()
 
-    roster_info = open(data_file)
-
-    for line in roster_info:
-        s = student_from_line(line)
-        roster[s.name] = s
-
-    roster_info.close()
+    with open(data_file) as roster_info:
+        for line in roster_info:
+            s = student_from_line(line)
+            roster[s.name] = s
 
     # repopulate and alphabetize student list
     update_student_list()
@@ -246,12 +243,10 @@ def populate_roster(data_file):
 def save_data():
     """Save any data from the session into the corresponding text file."""
     # open the file associated with this roster
-    roster_info = open(current_file, "w")
-
-    for kid in roster:
-        roster_info.write(roster[kid].to_file())
-        roster_info.write("\n")
-    roster_info.close()
+    with open(current_roster_name, "w") as roster_info:
+        for kid in roster:
+            roster_info.write(roster[kid].to_file())
+            roster_info.write("\n")
 
     # if this is a newly created roster, add the file name to the list of
         # roster files in the "config" file
@@ -259,16 +254,14 @@ def save_data():
 
     if new_roster:
         roster_list = get_all_rosters() # list of all roster files
-        roster_list.append(current_file) # add current file to list
+        roster_list.append(current_roster_name) # add current file to list
         roster_list.sort(key=string.lower) # alphabetize list
-        all_rosters_file = open(config_file, "w") # open "config" file
 
-        # write list of all roster files to the document
-        for file_name in roster_list:
-            all_rosters_file.write(file_name)
-            all_rosters_file.write("\n")
-
-        all_rosters_file.close()
+        with open(config_file, "w") as all_rosters_file:
+            # write list of all roster files to the document
+            for file_name in roster_list:
+                all_rosters_file.write(file_name)
+                all_rosters_file.write("\n")
 
 ##### LARGE-SCALE FUNCTIONS #####
 
@@ -313,9 +306,9 @@ def make_new_roster():
         if class_title in all_rosters_list:
             print "ERROR! This class name already exists. Please try again."
         else:
-            # save the given filename as the 'current file'
-            global current_file
-            current_file = class_title
+            # save the given filename as the 'current roster'
+            global current_roster_name
+            current_roster_name = class_title
             # Boolean saying that this is a new roster
                 # i.e. when the program saves data, it will know to add a new
                 # filename to the "config" file
@@ -368,15 +361,15 @@ def load_roster():
                 index = answer_int - 1 # (b/c list as displayed is 1-indexed)
 
                 # save the given filename as the 'current file'
-                global current_file
-                current_file = roster_list[index]
-                print "File to load:", current_file
+                global current_roster_name
+                current_roster_name = roster_list[index]
+                print "File to load:", current_roster_name
 
                 # populate the roster using the data in the selected file
-                populate_roster(current_file)
+                populate_roster(current_roster_name)
 
                 # returns name of the class (= name of the file) for display
-                return current_file
+                return current_roster_name
             else: # if user input isn't in range or isn't an integer
                 print "Sorry, I didn't get that. Try again." # run the loop again
 
