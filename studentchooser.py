@@ -94,6 +94,28 @@ class Roster(dict):
                     all_rosters_file.write(roster)
                     all_rosters_file.write("\n")
 
+    def pick_a_kid(self):
+        """Return a student picked from roster according to probability distribution.
+        (Each student's probabibility is adjusted according to number of times picked.)"""
+        value = random() * 100 # random value between 0 and 100
+        startpoint = 0
+        endpoint = 0
+
+        present_students = [kid for kid in self if not self[kid].absent]
+
+        for kid in present_students:
+            # increase endpoint by this student's probability
+            endpoint += self[kid].prob
+
+            if (startpoint <= value <= endpoint):
+                chosen = kid
+                break
+            else:
+                # increase startpoint by this student's probability
+                startpoint += self[kid].prob
+
+        return chosen
+
     def scale(self):
         """Adjust all students' probabilities, scale to sum to 100."""
         # set all prob's back to scale to 100
@@ -108,6 +130,26 @@ class Roster(dict):
             total += kid.prob
         for kid in present_students:
             kid.prob *= 100.0 / total
+
+    def choose(self):
+        """The entire student selection process, including confirmation and output."""
+        while True:
+            # pick a student
+            the_student = self.pick_a_kid()
+
+            # ask for confirmation
+            confirmation = confirm(the_student + " was selected. OK? y/n")
+
+            if confirmation: # if the user confirms
+                self[the_student].times_picked += 1 # adjust student's "times_picked" counter
+                break
+            elif not(confirmation): # if user does not confirm
+                print "OK, choosing again." # run the loop again (i.e. pick again)
+
+        self.scale()
+
+        print "Selected:", the_student
+        return the_student
 
     def last_absent(self):
         """Print names of the students who are absent.
@@ -186,29 +228,6 @@ def mark_absent(abs_list):
             take_attendance()
 
 ### CHOOSING ###
-
-def pick_kid():
-    """Return a student picked from roster according to probability distribution.
-    (Each student's probabibility is adjusted according to number of times picked.)"""
-    value = random() * 100 # random value between 0 and 100
-    startpoint = 0
-    endpoint = 0
-
-    for kid in get_present_students():
-        # increase endpoint by this student's probability
-        endpoint += get_present_students()[kid].prob
-
-        # for debug:
-        # print "(%f, %f)" % (startpoint, endpoint)
-
-        if (startpoint <= value <= endpoint):
-            chosen = kid
-            break
-        else:
-            # increase startpoint by this student's probability
-            startpoint += get_present_students()[kid].prob
-
-    return chosen
 
 ### ROSTERS (MAKING AND UPDATING) ###
 
@@ -327,26 +346,6 @@ def load_roster_from_disk():
                 return Roster(name=roster_to_load, new=False)
             else: # if user input isn't in range or isn't an integer
                 print "Sorry, I didn't get that. Try again."
-
-def select():
-    """The entire student selection process, including confirmation and output."""
-    while True:
-        # pick a student
-        the_student = pick_kid()
-
-        # ask for confirmation
-        confirmation = confirm(the_student + " was selected. OK? y/n")
-
-        if confirmation: # if the user confirms
-            get_present_students()[the_student].times_picked += 1 # adjust student's "times_picked" counter
-            break
-        elif not(confirmation): # if user does not confirm
-            print "OK, choosing again." # run the loop again (i.e. pick again)
-
-    scale()
-
-    print "Selected:", the_student
-    return the_student
 
 def take_attendance():
     """Asks user to input absent students, passes these students to mark_absent()
